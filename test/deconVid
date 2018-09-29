@@ -1,0 +1,2 @@
+#!/bin/sh
+ffmpeg -i input.mkv -s 64x64 -r 60 -f image2 frames/%5d.png
