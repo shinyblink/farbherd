@@ -1,6 +1,7 @@
 fhinfo
 fhpack
 fhunpack
+fhwrap
 
 test/frames/*
 test/oframes/*
