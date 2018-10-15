@@ -3,7 +3,7 @@ CC ?= cc
 CFLAGS ?= -O2
 CPPLAGS += -pedantic -Wall -Wextra
 
-DESTDIR=/usr/local
+DESTDIR ?= /usr/local
 
 # Don't change after here.
 # Or do. I am not your mom.

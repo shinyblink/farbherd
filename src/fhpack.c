@@ -24,7 +24,7 @@ int main(int argc, char ** argv) {
 	uint16_t * workingcore, * imagecore;
 
 	if (argc != 4) {
-		fprintf(stderr, "%s loop/once ftMul ftDiv\n", argv[0]);
+		fprintf(stderr, "Usage: %s loop/once ftMul ftDiv\n", argv[0]);
 		return 1;
 	}
 	if (!strcmp(argv[1], "loop")) {
