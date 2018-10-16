@@ -1,7 +1,7 @@
 # farbherd Makefile
 CC ?= cc
 CFLAGS ?= -O2
-CPPLAGS += -pedantic -Wall -Wextra
+CPPFLAGS += -pedantic -Wall -Wextra
 
 DESTDIR ?= /usr/local
 

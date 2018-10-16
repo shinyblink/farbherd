@@ -11,8 +11,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-// htons/ntohs
-#include <arpa/inet.h>
+
+// I know, I know, not standardized.
+#include <endian.h>
 
 #define DEBUGF(...) fprintf(stderr, __VA_ARGS__)
 
@@ -62,7 +63,7 @@ inline static int farbherd_read_int(FILE * target, uint32_t * i) {
 	uint32_t tmp;
 	if (farbherd_read_buffer(target, &tmp, sizeof(uint32_t)))
 		return 1;
-	*i = ntohl(tmp);
+	*i = betoh32(tmp);
 	return 0;
 }
 
@@ -128,7 +129,7 @@ inline static int farbherd_read_farbherd_header(FILE * target, farbherd_header_t
 
 // Output functions.
 inline static int farbherd_write_int(FILE * target, uint32_t v) {
-	uint32_t be = htonl(v);
+	uint32_t be = htobe32(v);
 	if(!fwrite(&be, sizeof(uint32_t), 1, target))
 		return 1;
 	return 0;
@@ -170,13 +171,13 @@ inline static int farbherd_write_farbherd_header(FILE * target, farbherd_header_
 // Delta/Pixel endianness
 inline static int farbherd_endian_datain(uint16_t * netdata, size_t datasize) {
 	for (size_t n = 0; n < datasize; n += sizeof(uint16_t)) {
-		*netdata = ntohs(*netdata);
+		*netdata = betoh16(*netdata);
 		netdata++;
 	}
 }
 inline static int farbherd_endian_dataout(uint16_t * hostdata, size_t datasize) {
 	for (size_t n = 0; n < datasize; n += sizeof(uint16_t)) {
-		*hostdata = htons(*hostdata);
+		*hostdata = htobe16(*hostdata);
 		hostdata++;
 	}
 }
@@ -243,8 +244,8 @@ inline static void farbherd_write_farbherd_frame(FILE * output, farbherd_frame_t
 // Useful for encoders.
 inline static void farbherd_calc_apply_delta(uint16_t * working, uint16_t * source, size_t datasize) {
 	for (size_t n = 0; n < datasize; n += sizeof(uint16_t)) {
-		uint16_t value = ntohs(*source);
-		*source = htons(value - ntohs(*working));
+		uint16_t value = betoh16(*source);
+		*source = htobe16(value - betoh16(*working));
 		working++;
 		source++;
 	}
@@ -252,7 +253,7 @@ inline static void farbherd_calc_apply_delta(uint16_t * working, uint16_t * sour
 // Applies the deltas in source to working, leaving source unmodified.
 inline static void farbherd_apply_delta(uint16_t * working, const uint16_t * source, size_t datasize) {
 	for (size_t n = 0; n < datasize; n += sizeof(uint16_t)) {
-		*working = htons(ntohs(*working) + ntohs(*source));
+		*working = htobe16(betoh16(*working) + betoh16(*source));
 		working++;
 		source++;
 	}
