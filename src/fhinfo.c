@@ -44,6 +44,6 @@ int main(int argc, char ** argv) {
 	fprintf(stdout, "frames %u\nseconds %u\ninferred %u\n", head.frameCount, seconds, inferred);
 	fprintf(stdout, "flags %u\n", head.flags);
 	fprintf(stdout, "fileext %u\nheadsize %u\n", head.fileExtSize, 40 + head.fileExtSize);
-	fprintf(stdout, "frameext %u\nframesize %u\n", head.frameExtSize, head.frameExtSize + farbherd_datasize(head.imageHead));
+	fprintf(stdout, "frameext %u\nframesize %lu\n", head.frameExtSize, head.frameExtSize + farbherd_datasize(head.imageHead));
 	return 0;
 }

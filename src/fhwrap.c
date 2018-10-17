@@ -19,7 +19,7 @@
 
 #include "farbherd.h"
 
-void run_worker(uint16_t *input, uint16_t *output, size_t bufsz, farbfeld_header_t head, int argc, char* argv[]) {
+void run_worker(uint16_t *input, uint16_t *output, size_t bufsz, farbfeld_header_t head, char* argv[]) {
 	int infd[2];
 	if (pipe(infd) == -1) {
 		fprintf(stderr, "Failed to create input pipe.\n");
@@ -46,7 +46,6 @@ void run_worker(uint16_t *input, uint16_t *output, size_t bufsz, farbfeld_header
 		_exit(1);
 	}
 
-	int exit;
 	pid_t filter = fork();
 	if (filter == 0) {
 		// child.
@@ -77,7 +76,7 @@ void run_worker(uint16_t *input, uint16_t *output, size_t bufsz, farbfeld_header
 		fprintf(stderr, "Failed to read worker farbfeld header.\n");
 		_exit(1);
 	}
-	if ((rhead.width != head.width) || (rhead.height != rhead.height)) {
+	if ((rhead.width != head.width) || (rhead.height != head.height)) {
 		fprintf(stderr, "Worker returned wrong farbfeld canvas size?\n");
 		_exit(1);
 	}
@@ -143,7 +142,7 @@ int main(int argc, char ** argv) {
 		farbherd_apply_delta(work_in, inputframe.deltas, datasize);
 
 		// Run the buffer through the worker filter.
-		run_worker(inputframe.deltas, outbuf, datasize, head.imageHead, argc, argv + 1);
+		run_worker(inputframe.deltas, outbuf, datasize, head.imageHead, argv + 1);
 
 		// Write out the completed frame.
 		farbherd_calc_apply_delta(work_out, outbuf, datasize);
