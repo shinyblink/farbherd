@@ -20,7 +20,7 @@ install: $(BINS)
 	mkdir -p $(DESTDIR)/bin
 	mkdir -p $(DESTDIR)/include
 	install $(BINS) $(DESTDIR)/bin
-	install src/farbfeld.h $(DESTDIR)/include
+	install src/farbherd.h $(DESTDIR)/include
 
 clean:
 	rm -f $(BINS)
