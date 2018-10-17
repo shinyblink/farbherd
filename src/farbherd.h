@@ -63,16 +63,17 @@ inline static int farbherd_read_int(FILE * target, uint32_t * i) {
 	uint32_t tmp;
 	if (farbherd_read_buffer(target, &tmp, sizeof(uint32_t)))
 		return 1;
-	*i = betoh32(tmp);
+	*i = be32toh(tmp);
 	return 0;
 }
 
 inline static int farbherd_read_farbfeld_header(FILE * target, farbfeld_header_t * fht) {
-	unsigned char buf[8];
+	char buf[9];
 	if (farbherd_read_buffer(target, buf, 8))
 		return 1;
+	buf[8] = 0;
 	if (strncmp(buf, "farbfeld", 8)) {
-		DEBUGF("read %08s, not farbfeld", buf);
+		DEBUGF("read %s, not farbfeld", buf);
 		return 1;
 	}
 	if (farbherd_read_int(target, &(fht->width)))
@@ -83,7 +84,7 @@ inline static int farbherd_read_farbfeld_header(FILE * target, farbfeld_header_t
 }
 
 inline static int farbherd_read_farbherd_header(FILE * target, farbherd_header_t * fht) {
-	unsigned char buf[8];
+	char buf[8];
 	if (farbherd_read_buffer(target, buf, 8))
 		return 1;
 	if (strncmp(buf, "farbherd", 8) != 0)
@@ -169,13 +170,13 @@ inline static int farbherd_write_farbherd_header(FILE * target, farbherd_header_
 }
 
 // Delta/Pixel endianness
-inline static int farbherd_endian_datain(uint16_t * netdata, size_t datasize) {
+inline static void farbherd_endian_datain(uint16_t * netdata, size_t datasize) {
 	for (size_t n = 0; n < datasize; n += sizeof(uint16_t)) {
-		*netdata = betoh16(*netdata);
+		*netdata = be16toh(*netdata);
 		netdata++;
 	}
 }
-inline static int farbherd_endian_dataout(uint16_t * hostdata, size_t datasize) {
+inline static void farbherd_endian_dataout(uint16_t * hostdata, size_t datasize) {
 	for (size_t n = 0; n < datasize; n += sizeof(uint16_t)) {
 		*hostdata = htobe16(*hostdata);
 		hostdata++;
@@ -244,8 +245,8 @@ inline static void farbherd_write_farbherd_frame(FILE * output, farbherd_frame_t
 // Useful for encoders.
 inline static void farbherd_calc_apply_delta(uint16_t * working, uint16_t * source, size_t datasize) {
 	for (size_t n = 0; n < datasize; n += sizeof(uint16_t)) {
-		uint16_t value = betoh16(*source);
-		*source = htobe16(value - betoh16(*working));
+		uint16_t value = be16toh(*source);
+		*source = htobe16(value - be16toh(*working));
 		working++;
 		source++;
 	}
@@ -253,7 +254,7 @@ inline static void farbherd_calc_apply_delta(uint16_t * working, uint16_t * sour
 // Applies the deltas in source to working, leaving source unmodified.
 inline static void farbherd_apply_delta(uint16_t * working, const uint16_t * source, size_t datasize) {
 	for (size_t n = 0; n < datasize; n += sizeof(uint16_t)) {
-		*working = htobe16(betoh16(*working) + betoh16(*source));
+		*working = htobe16(be16toh(*working) + be16toh(*source));
 		working++;
 		source++;
 	}
