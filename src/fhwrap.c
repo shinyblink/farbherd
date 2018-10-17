@@ -142,7 +142,7 @@ int main(int argc, char ** argv) {
 		farbherd_apply_delta(work_in, inputframe.deltas, datasize);
 
 		// Run the buffer through the worker filter.
-		run_worker(inputframe.deltas, outbuf, datasize, head.imageHead, argv + 1);
+		run_worker(work_in, outbuf, datasize, head.imageHead, argv + 1);
 
 		// Write out the completed frame.
 		farbherd_calc_apply_delta(work_out, outbuf, datasize);

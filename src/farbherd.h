@@ -252,6 +252,7 @@ inline static void farbherd_calc_apply_delta(uint16_t * working, uint16_t * sour
 	for (size_t n = 0; n < datasize; n += sizeof(uint16_t)) {
 		uint16_t value = be16toh(*source);
 		*source = htobe16(value - be16toh(*working));
+		*working = htobe16(value);
 		working++;
 		source++;
 	}

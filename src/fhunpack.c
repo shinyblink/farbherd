@@ -94,7 +94,7 @@ int main(int argc, char ** argv) {
 					usleep(500);
 			}
 			farbherd_write_farbfeld_header(stdout, head.imageHead);
-			fwrite(frame.deltas, datasize, 1, stdout);
+			fwrite(workspace, datasize, 1, stdout);
 			fflush(stdout);
 			timeunit += head.frameTimeMul;
 		}
