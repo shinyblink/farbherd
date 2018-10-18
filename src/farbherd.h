@@ -15,7 +15,16 @@
 #include <fcntl.h>
 
 // I know, I know, not standardized.
+// But painless fallback.
+#if defined(__linux__)
 #include <endian.h>
+#else
+#include <arpa/inet.h>
+#define be32toh ntohl
+#define htobe32 htonl
+#define be16toh ntohs
+#define htobe16 htons
+#endif
 
 #define DEBUGF(...) fprintf(stderr, __VA_ARGS__)
 
