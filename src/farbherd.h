@@ -18,7 +18,11 @@
 // But painless fallback.
 #if defined(__linux__)
 #include <endian.h>
+#if __BYTE_ORDER != __BIG_ENDIAN
+#define DOCONVERT
+#endif
 #else
+#define DOCONVERT
 #include <arpa/inet.h>
 #define be32toh ntohl
 #define htobe32 htonl
@@ -61,7 +65,7 @@ typedef struct {
 // Meanwhile, on non-error, all buffers are safe to free() - they are malloc'd or are NULL, defined to be a NOP for free.
 inline static int farbherd_read_buffer(FILE * target, void * buf, size_t amount) {
 #ifdef POSIX_FADV_SEQUENTIAL
-       posix_fadvise(fileno(target), 0, amount, POSIX_FADV_SEQUENTIAL);
+	posix_fadvise(fileno(target), 0, amount, POSIX_FADV_SEQUENTIAL);
 #endif
 	do {
 		size_t a = fread(buf, 1, amount, target);
@@ -248,9 +252,15 @@ inline static int farbherd_read_farbherd_frame(FILE * input, farbherd_frame_t * 
 }
 
 inline static void farbherd_write_farbherd_frame(FILE * output, farbherd_frame_t * ft, farbherd_header_t mhead) {
+	size_t datasize = farbherd_datasize(mhead.imageHead);
+	setvbuf(output, NULL, _IOFBF, mhead.frameExtSize + datasize);
+#ifdef POSIX_FADV_SEQUENTIAL
+	posix_fadvise(fileno(output), 0, mhead.frameExtSize + datasize, POSIX_FADV_SEQUENTIAL);
+#endif
+
 	if (mhead.frameExtSize)
 		fwrite(ft->frameExtData, mhead.frameExtSize, 1, output);
-	size_t datasize = farbherd_datasize(mhead.imageHead);
+
 	if (datasize)
 		fwrite(ft->deltas, datasize, 1, output);
 }
