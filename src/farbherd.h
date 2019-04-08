@@ -18,16 +18,18 @@
 // But painless fallback.
 #if defined(__linux__)
 #include <endian.h>
-#if __BYTE_ORDER != __BIG_ENDIAN
-#define DOCONVERT
-#endif
+// These are defined as __uint32_identity and the like on BIG_ENDIAN systems.
+// These in turn are defined as inline functions, so it's harmless.
+#define farbherd_be32toh be32toh
+#define farbherd_htobe32 htobe32
+#define farbherd_be16toh be16toh
+#define farbherd_htobe16 htobe16
 #else
-#define DOCONVERT
 #include <arpa/inet.h>
-#define be32toh ntohl
-#define htobe32 htonl
-#define be16toh ntohs
-#define htobe16 htons
+#define farbherd_be32toh ntohl
+#define farbherd_htobe32 htonl
+#define farbherd_be16toh ntohs
+#define farbherd_htobe16 htons
 #endif
 
 #define DEBUGF(...) fprintf(stderr, __VA_ARGS__)
@@ -148,7 +150,7 @@ inline static int farbherd_read_farbherd_header(FILE * target, farbherd_header_t
 
 // Output functions.
 inline static int farbherd_write_int(FILE * target, uint32_t v) {
-	uint32_t be = htobe32(v);
+	uint32_t be = farbherd_htobe32(v);
 	if(!fwrite(&be, sizeof(uint32_t), 1, target))
 		return 1;
 	return 0;
@@ -190,13 +192,13 @@ inline static int farbherd_write_farbherd_header(FILE * target, farbherd_header_
 // Delta/Pixel endianness
 inline static void farbherd_endian_datain(uint16_t * netdata, size_t datasize) {
 	for (size_t n = 0; n < datasize; n += sizeof(uint16_t)) {
-		*netdata = be16toh(*netdata);
+		*netdata = farbherd_be16toh(*netdata);
 		netdata++;
 	}
 }
 inline static void farbherd_endian_dataout(uint16_t * hostdata, size_t datasize) {
 	for (size_t n = 0; n < datasize; n += sizeof(uint16_t)) {
-		*hostdata = htobe16(*hostdata);
+		*hostdata = farbherd_htobe16(*hostdata);
 		hostdata++;
 	}
 }
@@ -269,9 +271,9 @@ inline static void farbherd_write_farbherd_frame(FILE * output, farbherd_frame_t
 // Useful for encoders.
 inline static void farbherd_calc_apply_delta(uint16_t * working, uint16_t * source, size_t datasize) {
 	for (size_t n = 0; n < datasize; n += sizeof(uint16_t)) {
-		uint16_t value = be16toh(*source);
-		*source = htobe16(value - be16toh(*working));
-		*working = htobe16(value);
+		uint16_t value = farbherd_be16toh(*source);
+		*source = farbherd_htobe16(value - farbherd_be16toh(*working));
+		*working = farbherd_htobe16(value);
 		working++;
 		source++;
 	}
@@ -279,10 +281,11 @@ inline static void farbherd_calc_apply_delta(uint16_t * working, uint16_t * sour
 // Applies the deltas in source to working, leaving source unmodified.
 inline static void farbherd_apply_delta(uint16_t * working, const uint16_t * source, size_t datasize) {
 	for (size_t n = 0; n < datasize; n += sizeof(uint16_t)) {
-		*working = htobe16(be16toh(*working) + be16toh(*source));
+		*working = farbherd_htobe16(farbherd_be16toh(*working) + farbherd_be16toh(*source));
 		working++;
 		source++;
 	}
 }
 
 #define FARBHERD_TIMEDIV_TO_MS(time, div) (((time) * 1000) / (div))
+
