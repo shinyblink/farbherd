@@ -3,7 +3,8 @@ CC ?= cc
 CFLAGS ?= -O2
 CPPFLAGS += -pedantic -Wall -Wextra
 
-DESTDIR ?= /usr/local
+PREFIX ?= /usr/local
+DESTDIR ?= /
 
 # Don't change after here.
 # Or do. I am not your mom.
@@ -24,14 +25,14 @@ fhwrap: src/fhwrap.c $(DEP)
 
 .PHONY: install uninstall
 install: $(BINS)
-	mkdir -p $(DESTDIR)/bin
-	mkdir -p $(DESTDIR)/include
-	install $(BINS) $(DESTDIR)/bin
-	install src/farbherd.h $(DESTDIR)/include
+	mkdir -p $(DESTDIR)/$(PREFIX)/bin
+	mkdir -p $(DESTDIR)/$(PREFIX)/include
+	install $(BINS) $(DESTDIR)/$(PREFIX)/bin
+	install src/farbherd.h $(DESTDIR)/$(PREFIX)/include
 
 uninstall:
-	cd $(DESTDIR)/bin && rm -f $(BINS)
-	rm -f $(DESTDIR)/include/farbherd.h
+	cd $(DESTDIR)/$(PREFIX)/bin && rm -f $(BINS)
+	rm -f $(DESTDIR)/$(PREFIX)/include/farbherd.h
 
 clean:
 	rm -f $(BINS)
