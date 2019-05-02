@@ -25,8 +25,8 @@ fhwrap: src/fhwrap.c $(DEP)
 
 .PHONY: install uninstall
 install: $(BINS)
-	mkdir -p $(DESTDIR)/$(PREFIX)/bin
-	mkdir -p $(DESTDIR)/$(PREFIX)/include
+	install -d $(DESTDIR)/$(PREFIX)/bin
+	install -d $(DESTDIR)/$(PREFIX)/include
 	install $(BINS) $(DESTDIR)/$(PREFIX)/bin
 	install src/farbherd.h $(DESTDIR)/$(PREFIX)/include
 
